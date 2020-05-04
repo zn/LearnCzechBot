@@ -46,6 +46,10 @@ func main(){
 	if err != nil{
 		log.Fatal(err)
 	}
+	err = sendMessage(text)
+	if err != nil{
+		log.Fatal(err)
+	}
 	log.Println(definition.Word + " sent!")
 }
 
@@ -146,6 +150,7 @@ func generateMessage(definition *Definition) string{
 			builder.WriteString(fmt.Sprintf("%d. %s\n", i+1, example))
 		}
 	}
+	builder.WriteString("\nSource:⤵️")
 	return builder.String()
 }
 
