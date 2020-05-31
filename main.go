@@ -27,16 +27,14 @@ var (
 	telegramUserID = os.Getenv("TELEGRAM_USER_ID") // user id or username
 )
 
+var(
+	ErrDefinitionNotFound = errors.New("definition not found")
+)
+
 type Definition struct {
 	Word         string
 	Translations []string
 	Examples     []string
-}
-
-type DefinitionNotFound struct{}
-
-func (DefinitionNotFound) Error() string {
-	return "definition not found!"
 }
 
 func main() {
@@ -57,8 +55,8 @@ func main() {
 		word = getRandomWord(text)
 		definition, err = getDefinition(word)
 		if err != nil {
-			if dnf, ok := err.(DefinitionNotFound); ok {
-				log.Println(dnf.Error())
+			if err == ErrDefinitionNotFound {
+				log.Println(word, err.Error())
 				continue
 			}
 			log.Fatal(err)
@@ -70,10 +68,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = sendMessage(text)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	// Uncomment if you want to send the text from the news article
+	//err = sendMessage(text)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	log.Println(definition.Word + " sent!")
 }
 
@@ -141,7 +141,7 @@ func getDefinition(word string) (*Definition, error) {
 	}
 	table := doc.Find("table.entry")
 	if table == nil {
-		return nil, DefinitionNotFound{}
+		return nil, ErrDefinitionNotFound
 	}
 	meaning := &Definition{}
 	meaning.Word = table.Find("h1.lex_ful_entr").Text()
